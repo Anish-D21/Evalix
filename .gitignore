@@ -1,0 +1,39 @@
+# Dependencies
+node_modules/
+client/node_modules/
+server/node_modules/
+
+# Python
+nlp_service/venv/
+nlp_service/.venv/
+nlp_service/__pycache__/
+**/__pycache__/
+*.pyc
+
+# Environment secrets — never commit real env files
+.env
+client/.env
+server/.env
+nlp_service/.env
+!.env.example
+!client/.env.example
+!server/.env.example
+!nlp_service/.env.example
+
+# Build output
+client/dist/
+client/build/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Uploaded/temporary files (Section 48 — files are not persisted to disk)
+tmp/
+uploads/

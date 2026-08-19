@@ -1,0 +1,12 @@
+fastapi==0.115.0
+uvicorn[standard]==0.30.6
+pydantic==2.9.2
+pydantic-settings==2.5.2
+python-dotenv==1.0.1
+
+# Phase 1: NLP evaluation core.
+# PyMuPDF / python-docx (syllabus text extraction) are deferred to Phase 2.
+spacy==3.7.5
+sentence-transformers==3.0.1
+scikit-learn==1.5.2
+numpy==1.26.4

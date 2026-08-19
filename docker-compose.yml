@@ -1,0 +1,50 @@
+version: "3.9"
+
+# Local development orchestration for Evalix.
+# MongoDB is included here as a convenience local instance — production
+# uses MongoDB Atlas (see docs/architecture), never this container.
+services:
+  mongo:
+    image: mongo:7
+    container_name: evalix-mongo
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - evalix-mongo-data:/data/db
+
+  nlp_service:
+    build: ./nlp_service
+    container_name: evalix-nlp
+    restart: unless-stopped
+    env_file:
+      - ./nlp_service/.env
+    ports:
+      - "8000:8000"
+
+  server:
+    build: ./server
+    container_name: evalix-server
+    restart: unless-stopped
+    depends_on:
+      - mongo
+      - nlp_service
+    env_file:
+      - ./server/.env
+    environment:
+      - MONGODB_URI=mongodb://mongo:27017/evalix
+      - FASTAPI_URL=http://nlp_service:8000
+    ports:
+      - "5000:5000"
+
+  client:
+    build: ./client
+    container_name: evalix-client
+    restart: unless-stopped
+    depends_on:
+      - server
+    ports:
+      - "5173:5173"
+
+volumes:
+  evalix-mongo-data:
