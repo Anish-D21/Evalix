@@ -118,13 +118,13 @@ RUBRIC = {
 }
 
 
-def run_case(title, student_answer):
+def run_case(title, student_answer, rubric=RUBRIC):
     print("\n" + "=" * 70)
     print(title)
     print("=" * 70)
     resp = client.post(
         "/api/nlp/evaluate-answer",
-        json={"question": "Explain Machine Learning.", "rubric": RUBRIC, "studentAnswer": student_answer},
+        json={"question": "Explain Machine Learning.", "rubric": rubric, "studentAnswer": student_answer},
     )
     print("HTTP status:", resp.status_code)
     body = resp.json()
@@ -151,3 +151,34 @@ run_case("TEST 2 — Strong paraphrased answer, different wording", test2_answer
 # ---- Test 3: Supervised learning misconception (Section 53) ----
 test3_answer = "Machine Learning is a branch of AI. Supervised learning does not require labelled data."
 run_case("TEST 3 — Misconception (should NOT zero the whole answer)", test3_answer)
+
+# ---- Test 4: EXACT case from the correctness bug report ----
+# "without labelled data" (negating preposition) + "unlabelled ... instead"
+# (morphological negation) -- neither is caught by a bare 'not'/'n't'/'never'
+# check. This must now show Labelled Data as coverage="contradicted" with
+# awardedMarks=0, and the relationship as "contradicted" with a misconception,
+# NOT the buggy pre-fix result (high_partial credit + "demonstrated").
+BUGREPORT_RUBRIC = {
+    "totalMarks": 5,
+    "concepts": [
+        {
+            "id": "supervised",
+            "name": "Supervised Learning",
+            "marks": 3,
+            "importance": "critical",
+            "acceptablePhrases": ["supervised learning trains a model using labelled data"],
+        },
+        {
+            "id": "labelled_data",
+            "name": "Labelled Data",
+            "marks": 2,
+            "importance": "critical",
+            "acceptablePhrases": ["labelled data used to train the model"],
+        },
+    ],
+    "relationships": [
+        {"sourceConcept": "Supervised Learning", "relationship": "learns from", "targetConcept": "Labelled Data", "importance": "high"}
+    ],
+}
+bugreport_answer = "Supervised learning trains a model without labelled data. It learns from unlabelled examples instead."
+run_case("TEST 4 — Exact bug-report case (negated concept, contradicted relationship)", bugreport_answer, rubric=BUGREPORT_RUBRIC)

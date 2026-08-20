@@ -51,6 +51,8 @@ class ConceptScoreResult:
     importance: str
     evidence_sentence: Optional[str]
     suppressed_overlap_with: Optional[str] = None
+    negated: bool = False
+    negation_reasons: Optional[List[str]] = None
 
 
 def score_concepts(
@@ -59,8 +61,21 @@ def score_concepts(
     sentences: List[str],
     suppressed: Dict[str, bool],
     overlap_winner_by_suppressed: Dict[str, str],
+    negated_concepts: Optional[Dict[str, List[str]]] = None,
 ) -> List[ConceptScoreResult]:
-    """Turns raw similarity matches into marks-aware, explainable per-concept results."""
+    """Turns raw similarity matches into marks-aware, explainable per-concept results.
+
+    `negated_concepts` maps concept_id -> list of human-readable negation
+    reasons for any concept whose best-evidence sentence structurally
+    negates that concept's own terms (see engines/evaluation/negation.py).
+    A negated concept is forced to zero credit and a distinct
+    "contradicted" coverage label REGARDLESS of its raw similarity score
+    — a high MiniLM similarity to "labelled data" is exactly what you'd
+    expect from a sentence that explicitly denies using labelled data,
+    since the topic is still clearly present; only the linguistic
+    negation check can tell the two apart.
+    """
+    negated_concepts = negated_concepts or {}
     results: List[ConceptScoreResult] = []
 
     for concept in concepts:
@@ -76,7 +91,17 @@ def score_concepts(
             evidence_sentence = sentences[match.best_sentence_index]
 
         is_suppressed = suppressed.get(cid, False)
-        awarded = 0.0 if is_suppressed else round(marks * factor, 3)
+        is_negated = cid in negated_concepts
+
+        if is_negated:
+            awarded = 0.0
+            coverage = "contradicted"
+        elif is_suppressed:
+            awarded = 0.0
+            coverage = "not_covered"
+        else:
+            awarded = round(marks * factor, 3)
+            coverage = label
 
         results.append(
             ConceptScoreResult(
@@ -85,10 +110,12 @@ def score_concepts(
                 marks=marks,
                 awarded_marks=awarded,
                 similarity=round(similarity, 4),
-                coverage="not_covered" if is_suppressed else label,
+                coverage=coverage,
                 importance=concept.get("importance", "medium"),
                 evidence_sentence=evidence_sentence if not is_suppressed else None,
                 suppressed_overlap_with=overlap_winner_by_suppressed.get(cid) if is_suppressed else None,
+                negated=is_negated,
+                negation_reasons=negated_concepts.get(cid) if is_negated else None,
             )
         )
 

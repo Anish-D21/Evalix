@@ -53,6 +53,8 @@ class ConceptResultOut(BaseModel):
     importance: str
     evidence: Optional[str] = None
     suppressedOverlapWith: Optional[str] = None
+    negated: bool = False
+    negationReasons: Optional[List[str]] = None
 
 
 class RelationshipResultOut(BaseModel):
@@ -72,6 +74,7 @@ class MisconceptionOut(BaseModel):
     targetConcept: str
     evidenceSentence: str
     note: str
+    detectionReasons: Optional[List[str]] = None
 
 
 class EvaluateAnswerResponseData(BaseModel):

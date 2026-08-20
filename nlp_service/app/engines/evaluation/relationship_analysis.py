@@ -9,13 +9,17 @@ in the rubric — no open-world reasoning. For each relationship we:
   2. Find the strongest candidate sentence: the one sentence most
      related to *both* concepts at once (min of the two similarities,
      maximized across sentences).
-  3. Use spaCy's dependency parse to look for a `neg` token in that
-     sentence. This is the linguistically principled way to detect
-     negation (vs. a keyword list), and it's exactly what a viva would
-     expect a "dependency parsing" line item to demonstrate.
-  4. If negated -> conservative "potential misconception" wording, never
-     an assertion of fact. If not negated and similarity clears the
-     threshold -> "demonstrated". Otherwise -> "not_demonstrated".
+  3. Check whether that sentence structurally negates either endpoint's
+     own vocabulary, via engines/evaluation/negation.py — clausal
+     negation ("not"/"never"), negating prepositions ("without X"),
+     "instead of X" constructions, and morphological negation
+     ("unlabelled"). This is the linguistically principled way to
+     detect contradiction (vs. a keyword list), and it's exactly what a
+     viva would expect a "dependency parsing" line item to demonstrate.
+  4. If negated -> "contradicted" status + conservative "potential
+     misconception" wording, never an assertion of fact. If not negated
+     and similarity clears the threshold -> "demonstrated". Otherwise ->
+     "not_demonstrated".
 """
 
 from __future__ import annotations
@@ -26,6 +30,7 @@ import numpy as np
 
 from app.core.config import settings
 from app.engines.evaluation.concept_matching import ConceptMatchResult
+from app.engines.evaluation.negation import build_protected_terms, concept_key_lemmas, sentence_negates_concept
 
 
 def _find_concept_id(ref: str, concepts_by_id: Dict[str, dict], concepts_by_name: Dict[str, dict]) -> str | None:
@@ -51,6 +56,7 @@ def analyze_relationships(
     """Returns (relationship_results, misconceptions)."""
     concepts_by_id = {c["id"]: c for c in concepts}
     concepts_by_name = {c["name"].strip().lower(): c for c in concepts}
+    protected_terms = build_protected_terms(concepts)
 
     relationship_results: List[dict] = []
     misconceptions: List[dict] = []
@@ -97,7 +103,18 @@ def analyze_relationships(
             relationship_results.append({**base, "status": "not_demonstrated", "evidence": None})
             continue
 
-        negated = _sentence_has_negation(nlp, candidate_sentence)
+        # Broadened negation check: clausal ("not"/"never"), negating
+        # prepositions ("without X"), "instead of X", and morphological
+        # ("unlabelled") — checked against BOTH endpoints' own vocabulary,
+        # since a contradiction can land on either ("...without labelled
+        # data" negates the target; a differently-worded sentence could
+        # equally negate the source).
+        source_lemmas = concept_key_lemmas(nlp, concepts_by_id[source_id])
+        target_lemmas = concept_key_lemmas(nlp, concepts_by_id[target_id])
+        negated_target, reasons_target = sentence_negates_concept(nlp, candidate_sentence, target_lemmas, protected_terms)
+        negated_source, reasons_source = sentence_negates_concept(nlp, candidate_sentence, source_lemmas, protected_terms)
+        negated = negated_target or negated_source
+        negation_reasons = reasons_target + reasons_source
 
         if negated:
             relationship_results.append(
@@ -113,9 +130,10 @@ def analyze_relationships(
                         f"Potential misconception: the response appears inconsistent with the "
                         f"expected relationship between '{rel['sourceConcept']}' and "
                         f"'{rel['targetConcept']}'. This is a conservative flag based on detected "
-                        f"negation near both concepts, not a claim of factual certainty — please "
-                        f"review the highlighted sentence."
+                        f"negation/contradiction near both concepts, not a claim of factual "
+                        f"certainty — please review the highlighted sentence."
                     ),
+                    "detectionReasons": negation_reasons,
                 }
             )
         else:

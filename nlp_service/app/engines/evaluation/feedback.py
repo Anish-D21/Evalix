@@ -20,6 +20,7 @@ def generate_feedback(
     covered = [c for c in concept_scores if c.coverage in ("full", "high_partial")]
     partial = [c for c in concept_scores if c.coverage in ("partial", "low_evidence")]
     missing = [c for c in concept_scores if c.coverage == "not_covered"]
+    contradicted = [c for c in concept_scores if c.coverage == "contradicted"]
 
     strengths = [f"Demonstrated understanding of {c.name}." for c in covered]
     if not strengths and partial:
@@ -30,6 +31,11 @@ def generate_feedback(
         importance = (c.importance or "medium").lower()
         if importance in ("critical", "high"):
             improvement_areas.append(f"{c.name} was not addressed and is an important part of the expected answer.")
+    for c in contradicted:
+        improvement_areas.append(
+            f"{c.name} appears to be explicitly contradicted rather than simply missing — please review this part "
+            f"of your answer."
+        )
 
     revision_recommendations = []
     critical_missing = [c.name for c in missing if (c.importance or "").lower() in ("critical", "high")]
@@ -41,6 +47,12 @@ def generate_feedback(
     if other_missing:
         revision_recommendations.append(
             "It would also help to revisit: " + ", ".join(other_missing) + "."
+        )
+    if contradicted:
+        revision_recommendations.append(
+            "Double-check the following, since your answer appears to state the opposite of what's expected: "
+            + ", ".join(c.name for c in contradicted)
+            + "."
         )
     for m in misconceptions:
         revision_recommendations.append(

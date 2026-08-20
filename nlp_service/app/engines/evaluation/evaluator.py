@@ -22,6 +22,7 @@ from typing import List
 from app.engines.evaluation.concept_matching import match_concepts
 from app.engines.evaluation.embedder import embed_texts
 from app.engines.evaluation.feedback import generate_feedback
+from app.engines.evaluation.negation import build_protected_terms, concept_key_lemmas, sentence_negates_concept
 from app.engines.evaluation.overlap import apply_overlap_suppression, detect_overlapping_concept_groups
 from app.engines.evaluation.relationship_analysis import analyze_relationships
 from app.engines.evaluation.scoring import (
@@ -57,6 +58,23 @@ def evaluate_answer(request_data: dict, nlp, embedder) -> dict:
     # ---- Concept matching ----
     match_results = match_concepts(concepts, sentences, sentence_embeddings, embed_fn)
 
+    # ---- Negation / contradiction detection (must run BEFORE scoring:
+    # a negated concept must never receive normal similarity-based credit,
+    # no matter how high the raw MiniLM similarity is -- e.g. "trains a
+    # model without labelled data" is semantically close to "labelled
+    # data" while explicitly denying it). ----
+    protected_terms = build_protected_terms(concepts)
+    negated_concepts: dict = {}
+    for concept in concepts:
+        cid = concept["id"]
+        match = match_results.get(cid)
+        if match and match.best_sentence_index is not None and match.best_sentence_index < len(sentences):
+            evidence_sentence = sentences[match.best_sentence_index]
+            concept_lemmas = concept_key_lemmas(nlp, concept)
+            negated, reasons = sentence_negates_concept(nlp, evidence_sentence, concept_lemmas, protected_terms)
+            if negated:
+                negated_concepts[cid] = reasons
+
     # ---- Double-counting prevention ----
     overlap_groups = detect_overlapping_concept_groups(concepts, match_results)
     suppressed = apply_overlap_suppression({c["id"]: c for c in concepts}, match_results, overlap_groups)
@@ -78,7 +96,9 @@ def evaluate_answer(request_data: dict, nlp, embedder) -> dict:
     ]
 
     # ---- Scoring ----
-    concept_scores = score_concepts(concepts, match_results, sentences, suppressed, overlap_winner_by_suppressed)
+    concept_scores = score_concepts(
+        concepts, match_results, sentences, suppressed, overlap_winner_by_suppressed, negated_concepts
+    )
     concept_coverage_ratio = compute_concept_coverage_ratio(concept_scores)
     concept_coverage_score = round(concept_coverage_ratio * total_marks, 2)
 
@@ -114,11 +134,17 @@ def evaluate_answer(request_data: dict, nlp, embedder) -> dict:
             "importance": c.importance,
             "evidence": c.evidence_sentence,
             "suppressedOverlapWith": c.suppressed_overlap_with,
+            "negated": c.negated,
+            "negationReasons": c.negation_reasons,
         }
 
     covered = [concept_out(c) for c in concept_scores if c.coverage in ("full", "high_partial")]
     partial = [concept_out(c) for c in concept_scores if c.coverage in ("partial", "low_evidence")]
-    missing = [concept_out(c) for c in concept_scores if c.coverage == "not_covered"]
+    # "contradicted" concepts get 0 marks just like "not_covered" ones, but
+    # keep a distinct coverage label so the response makes clear WHY no
+    # credit was given (explicit negation) rather than reporting them
+    # identically to a concept that was simply never mentioned.
+    missing = [concept_out(c) for c in concept_scores if c.coverage in ("not_covered", "contradicted")]
 
     return {
         "overallScore": overall_score,
