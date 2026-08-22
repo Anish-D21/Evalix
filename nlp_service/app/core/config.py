@@ -77,6 +77,16 @@ class Settings(BaseSettings):
     # like "AI" or "R" (handled by an explicit allow-list instead).
     min_topic_phrase_length: int = 3
 
+    # A syllabus line with no sentence-ending punctuation and at most
+    # this many words is treated as ONE topic verbatim (see
+    # engines/syllabus/topic_extraction.py's `_is_list_item_line`),
+    # rather than being handed to the noun-chunk parser -- protects
+    # short list-style topic titles ("Named Entity Recognition") from
+    # being fragmented. Longer unpunctuated lines fall back to noun-
+    # chunk extraction, since they're more likely a run-on sentence
+    # than a single topic title.
+    max_topic_list_item_words: int = 12
+
     # Uploaded syllabus files larger than this are rejected outright
     # rather than attempting extraction, per spec Section 6's requirement
     # to tolerate limited RAM/CPU on free-tier hosting.

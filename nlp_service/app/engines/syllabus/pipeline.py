@@ -3,9 +3,10 @@ Syllabus extraction pipeline (spec Section 14):
 
   File bytes
     -> text extraction (PDF/DOCX/TXT)
-    -> text cleaning
-    -> unit detection
-    -> topic candidate extraction (per unit)
+    -> unit detection (heading-based, on raw/un-normalized text)
+    -> topic candidate extraction (per unit, line-aware -- see
+       engines/syllabus/topic_extraction.py for why list-style and
+       prose-style syllabus content need different handling)
     -> topic normalization + deduplication (per unit)
     -> {extractedText, units: [{unitNumber, title, topics}]}
 
@@ -22,9 +23,8 @@ from __future__ import annotations
 
 from typing import Callable, List, Optional
 
-from app.engines.preprocessing.text_processing import normalize_text
 from app.engines.syllabus.text_extraction import extract_text
-from app.engines.syllabus.topic_extraction import extract_candidate_topics
+from app.engines.syllabus.topic_extraction import extract_candidate_topics_per_unit
 from app.engines.syllabus.topic_normalization import (
     merge_lexical_duplicates,
     semantic_merge_candidates,
@@ -52,10 +52,15 @@ def extract_syllabus(file_bytes: bytes, filename: str, nlp, embed_fn: Optional[C
 
     units_out: List[dict] = []
     for unit in detected_units:
-        # Whitespace normalization happens here, per-unit, after line
-        # structure has already done its job.
-        cleaned_unit_text = normalize_text(unit.text)
-        candidates = extract_candidate_topics(nlp, cleaned_unit_text)
+        # IMPORTANT: pass unit.text RAW (not whitespace-normalized) here
+        # too. extract_candidate_topics_per_unit needs the original line
+        # breaks to tell where one list-style topic ends and the next
+        # begins ("Named Entity Recognition" on its own line vs. run
+        # together with neighbouring topics) -- collapsing newlines
+        # before this point reproduces the exact bug this function
+        # fixes. Whitespace normalization now happens per-line, inside
+        # extract_candidate_topics_per_unit itself.
+        candidates = extract_candidate_topics_per_unit(nlp, unit.text)
         candidates = merge_lexical_duplicates(candidates)
         candidates = semantic_merge_candidates(embed_fn, candidates)
         topics = [title_case_topic(c.text) for c in candidates]
