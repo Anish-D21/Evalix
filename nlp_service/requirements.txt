@@ -10,3 +10,8 @@ spacy==3.7.5
 sentence-transformers==3.0.1
 scikit-learn==1.5.2
 numpy==1.26.4
+
+# Phase 2: syllabus processing (PDF/DOCX/TXT text extraction).
+pymupdf==1.24.10
+python-docx==1.1.2
+python-multipart==0.0.9

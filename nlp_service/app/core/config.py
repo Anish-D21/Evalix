@@ -61,5 +61,26 @@ class Settings(BaseSettings):
     # tolerate cold starts without hanging.
     hf_hub_download_timeout_seconds: int = 5
 
+    # ---- Phase 2: syllabus processing ----
+    # Two candidate topic phrases whose embeddings are more similar than
+    # this are treated as near-duplicates ("machine learning" / "Machine
+    # Learning" / "machine-learning") and merged into one, mirroring the
+    # same double-counting-prevention philosophy as the rubric concept
+    # overlap check (Section 25). Semantic dedup is a best-effort layer
+    # on top of exact lexical normalization -- it's skipped gracefully
+    # if the embedding model isn't loaded (see engines/syllabus/pipeline.py).
+    topic_overlap_threshold: float = 0.92
+
+    # Candidate topics shorter than this (in characters, after
+    # normalization) are dropped -- filters out leftover single-letter/
+    # punctuation noise without banning genuinely short real topics
+    # like "AI" or "R" (handled by an explicit allow-list instead).
+    min_topic_phrase_length: int = 3
+
+    # Uploaded syllabus files larger than this are rejected outright
+    # rather than attempting extraction, per spec Section 6's requirement
+    # to tolerate limited RAM/CPU on free-tier hosting.
+    max_syllabus_upload_mb: float = 10.0
+
 
 settings = Settings()
