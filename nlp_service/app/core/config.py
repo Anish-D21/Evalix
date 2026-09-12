@@ -106,5 +106,19 @@ class Settings(BaseSettings):
     # in the app (see the Section 19 rubric example's 0.5-mark concepts).
     blueprint_marks_granularity: float = 0.5
 
+    # ---- Phase 4: question generation ----
+    # Two generated questions in the same batch with a semantic
+    # similarity at or above this are flagged as likely duplicates
+    # (Section 18's "duplicate similarity" check). Mirrors the Phase 1/2
+    # overlap thresholds; only used when the embedding model is loaded --
+    # exact lexical duplicates are always caught regardless.
+    question_duplicate_similarity_threshold: float = 0.92
+
+    # A generated question shorter than this many words is flagged as
+    # a basic-completeness concern for teacher review, rather than
+    # rejected outright (Section 18: invalid questions are flagged, not
+    # discarded).
+    min_question_word_count: int = 3
+
 
 settings = Settings()

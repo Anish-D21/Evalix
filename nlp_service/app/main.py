@@ -6,7 +6,7 @@ from fastapi.responses import JSONResponse
 
 from app.core.config import settings
 from app.core.nlp_models import load_models
-from app.routers import blueprint, evaluate, health, syllabus
+from app.routers import blueprint, evaluate, health, question_generation, syllabus
 
 
 @asynccontextmanager
@@ -55,7 +55,8 @@ app.include_router(health.router)
 app.include_router(evaluate.router)
 app.include_router(syllabus.router)
 app.include_router(blueprint.router)
+app.include_router(question_generation.router)
 
-# Phase 3: health + evaluate-answer + extract-topics + generate-blueprint
-# are wired up. generate-questions and generate-rubric-candidates
-# routers are added in later phases as their engines are implemented.
+# Phase 4: health + evaluate-answer + extract-topics + generate-blueprint
+# + generate-questions are wired up. generate-rubric-candidates is added
+# in a later phase as its engine is implemented.
