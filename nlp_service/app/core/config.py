@@ -92,5 +92,19 @@ class Settings(BaseSettings):
     # to tolerate limited RAM/CPU on free-tier hosting.
     max_syllabus_upload_mb: float = 10.0
 
+    # ---- Phase 3: blueprint generation ----
+    # A distribution's percentages must sum to within this many
+    # percentage points of 100 to be accepted at all (protects against
+    # obviously wrong input, e.g. a typo dropping a whole category) -- a
+    # sum inside this tolerance but not exactly 100 is still accepted and
+    # normalized, and reported back as a warning, never silently absorbed.
+    blueprint_percentage_tolerance: float = 1.0
+
+    # Marks are allocated in units of this size. 0.5 allows e.g. a 2-mark
+    # question band to come out to 2.5 marks when a split doesn't divide
+    # evenly, matching the half-mark granularity already used elsewhere
+    # in the app (see the Section 19 rubric example's 0.5-mark concepts).
+    blueprint_marks_granularity: float = 0.5
+
 
 settings = Settings()
