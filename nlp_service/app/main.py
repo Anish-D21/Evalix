@@ -6,7 +6,7 @@ from fastapi.responses import JSONResponse
 
 from app.core.config import settings
 from app.core.nlp_models import load_models
-from app.routers import blueprint, evaluate, health, question_generation, syllabus
+from app.routers import blueprint, evaluate, health, question_generation, rubric, syllabus
 
 
 @asynccontextmanager
@@ -39,9 +39,8 @@ async def http_exception_handler(request: Request, exc: HTTPException) -> JSONRe
     `detail` (see evaluate.py, syllabus.py). FastAPI's own default handler
     would return that as a bare {"detail": {...}} body, which does NOT
     match the {"success", "data", "error"} envelope spec Section 45
-    requires for every response, success or failure. This normalizes it
-    for the whole app in one place rather than duplicating the reshaping
-    logic in every router.
+    requires for every response. This normalizes it for the whole app in
+    one place rather than duplicating the reshaping logic in every router.
     """
     detail = exc.detail
     if isinstance(detail, dict) and "code" in detail and "message" in detail:
@@ -56,7 +55,9 @@ app.include_router(evaluate.router)
 app.include_router(syllabus.router)
 app.include_router(blueprint.router)
 app.include_router(question_generation.router)
+app.include_router(rubric.router)
 
-# Phase 4: health + evaluate-answer + extract-topics + generate-blueprint
-# + generate-questions are wired up. generate-rubric-candidates is added
-# in a later phase as its engine is implemented.
+# Phase 5: health + evaluate-answer + extract-topics + generate-blueprint
+# + generate-questions + generate-rubric-candidates are all wired up.
+# This completes the FastAPI NLP service's core engine set per the spec's
+# Section 44 endpoint list.
