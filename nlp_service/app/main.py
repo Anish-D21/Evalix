@@ -6,7 +6,7 @@ from fastapi.responses import JSONResponse
 
 from app.core.config import settings
 from app.core.nlp_models import load_models
-from app.routers import blueprint, evaluate, health, question_generation, rubric, syllabus
+from app.routers import blueprint, evaluate, health, question_generation, rubric, service_info, syllabus
 
 
 @asynccontextmanager
@@ -50,14 +50,21 @@ async def http_exception_handler(request: Request, exc: HTTPException) -> JSONRe
     return JSONResponse(status_code=exc.status_code, content={"success": False, "data": None, "error": error})
 
 
-app.include_router(health.router)
-app.include_router(evaluate.router)
-app.include_router(syllabus.router)
-app.include_router(blueprint.router)
-app.include_router(question_generation.router)
-app.include_router(rubric.router)
+app.include_router(health.router, tags=["Health"])
+app.include_router(evaluate.router, tags=["Evaluation"])
+app.include_router(syllabus.router, tags=["Syllabus"])
+app.include_router(blueprint.router, tags=["Blueprint"])
+app.include_router(question_generation.router, tags=["Questions"])
+app.include_router(rubric.router, tags=["Rubric"])
+app.include_router(service_info.router, tags=["Service Info"])
 
-# Phase 5: health + evaluate-answer + extract-topics + generate-blueprint
-# + generate-questions + generate-rubric-candidates are all wired up.
-# This completes the FastAPI NLP service's core engine set per the spec's
-# Section 44 endpoint list.
+# Phase 6: FastAPI integration. Every engine built in Phases 1-5 (health,
+# evaluate-answer, extract-topics, generate-blueprint, generate-questions,
+# generate-rubric-candidates) is registered above with Swagger tags for a
+# clean /docs experience, plus a lightweight service-directory endpoint
+# (GET /api/nlp/) and a full end-to-end pipeline integration test suite
+# (tests/test_full_pipeline_integration.py) proving the whole teacher
+# workflow -- syllabus -> blueprint -> questions -> rubric -> evaluation
+# -- composes correctly through the real HTTP layer. No router internals
+# from prior phases were modified; only registration metadata and one
+# new, additive endpoint were added.
