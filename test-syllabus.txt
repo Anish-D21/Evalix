@@ -1,0 +1,5 @@
+﻿Unit 1: Introduction to Machine Learning
+Topics: Supervised Learning, Unsupervised Learning
+
+Unit 2: Neural Networks
+Topics: Perceptron, Backpropagation
