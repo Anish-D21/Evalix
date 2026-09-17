@@ -70,7 +70,7 @@ test('POST /api/rubrics/:id/approve rejects when concept marks do not sum to tot
   const { default: mongoose } = await import('mongoose');
 
   mock.method(Rubric, 'findById', async () => ({
-    _id: 'rubric-2',
+    _id: '000000000000000000000002',
     totalMarks: 10,
     concepts: [{ id: 'c1', name: 'Only Concept', marks: 5 }],
     approved: false,
@@ -81,7 +81,7 @@ test('POST /api/rubrics/:id/approve rejects when concept marks do not sum to tot
   const originalReadyState = mongoose.connection.readyState;
   mongoose.connection.readyState = 1;
 
-  const res = await request(app).post('/api/rubrics/rubric-2/approve');
+  const res = await request(app).post('/api/rubrics/000000000000000000000002/approve');
 
   mongoose.connection.readyState = originalReadyState;
 
@@ -98,7 +98,7 @@ test('POST /api/rubrics/:id/approve succeeds when concept marks sum matches tota
   const { default: mongoose } = await import('mongoose');
 
   const doc = {
-    _id: 'rubric-3',
+    _id: '000000000000000000000003',
     totalMarks: 10,
     concepts: [{ id: 'c1', name: 'Concept A', marks: 6 }, { id: 'c2', name: 'Concept B', marks: 4 }],
     approved: false,
@@ -111,7 +111,7 @@ test('POST /api/rubrics/:id/approve succeeds when concept marks sum matches tota
   const originalReadyState = mongoose.connection.readyState;
   mongoose.connection.readyState = 1;
 
-  const res = await request(app).post('/api/rubrics/rubric-3/approve');
+  const res = await request(app).post('/api/rubrics/000000000000000000000003/approve');
 
   mongoose.connection.readyState = originalReadyState;
 

@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import requireDb from '../middleware/requireDb.js';
+import validateObjectId from '../middleware/validateObjectId.js';
 import {
   generateAndSaveRubric,
   createRubric,
@@ -15,9 +16,9 @@ router.use(requireDb);
 
 router.post('/generate', generateAndSaveRubric);
 router.post('/', createRubric);
-router.get('/:id', getRubric);
-router.put('/:id', updateRubric);
-router.delete('/:id', deleteRubric);
-router.post('/:id/approve', approveRubric);
+router.get('/:id', validateObjectId(), getRubric);
+router.put('/:id', validateObjectId(), updateRubric);
+router.delete('/:id', validateObjectId(), deleteRubric);
+router.post('/:id/approve', validateObjectId(), approveRubric);
 
 export default router;
