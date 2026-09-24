@@ -1,38 +1,34 @@
-import { useEffect, useState } from 'react';
-import api from './services/api.js';
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 
-// Phase 0 placeholder. This will be replaced by the routed application
-// (teacher dashboard, student exam UI, etc.) in later phases. For now it
-// exists to prove the frontend -> backend wiring works end to end.
+import MainLayout from './layouts/MainLayout.jsx';
+import Dashboard from './pages/Dashboard.jsx';
+import Syllabus from './pages/Syllabus.jsx';
+import Blueprint from './pages/Blueprint.jsx';
+import Questions from './pages/Questions.jsx';
+import Rubric from './pages/Rubric.jsx';
+import Evaluation from './pages/Evaluation.jsx';
+import NotFound from './pages/NotFound.jsx';
+
+// Phase 8 Step 1: routing foundation. Every route renders inside
+// MainLayout's shared sidebar/content shell. No data fetching or API
+// wiring happens here yet — each page is a placeholder ready for the
+// next implementation step to fill in.
 function App() {
-  const [status, setStatus] = useState('checking');
-
-  useEffect(() => {
-    api
-      .get('/health')
-      .then(() => setStatus('online'))
-      .catch(() => setStatus('offline'));
-  }, []);
-
-  const badgeColor =
-    status === 'online' ? 'bg-mint text-green' : status === 'offline' ? 'bg-pink text-navy' : 'bg-aqua text-navy';
-
   return (
-    <div className="min-h-screen flex items-center justify-center bg-white">
-      <div className="max-w-md w-full mx-4 p-8 rounded-xl shadow-sm border border-gray-100">
-        <h1 className="text-2xl font-semibold text-navy mb-1">Evalix</h1>
-        <p className="text-sm text-gray-500 mb-6">
-          AI-Powered Question Paper Generation &amp; Explainable Semantic Answer Evaluation
-        </p>
-        <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium ${badgeColor}`}>
-          <span className="w-2 h-2 rounded-full bg-current" />
-          Backend API: {status}
-        </div>
-        <p className="mt-6 text-xs text-gray-400">
-          Phase 0 scaffold — routing, dashboards, and exam UI arrive in later phases.
-        </p>
-      </div>
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route element={<MainLayout />}>
+          <Route index element={<Navigate to="/dashboard" replace />} />
+          <Route path="dashboard" element={<Dashboard />} />
+          <Route path="syllabus" element={<Syllabus />} />
+          <Route path="blueprint" element={<Blueprint />} />
+          <Route path="questions" element={<Questions />} />
+          <Route path="rubric" element={<Rubric />} />
+          <Route path="evaluate" element={<Evaluation />} />
+          <Route path="*" element={<NotFound />} />
+        </Route>
+      </Routes>
+    </BrowserRouter>
   );
 }
 

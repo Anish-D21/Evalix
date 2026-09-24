@@ -4,7 +4,6 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Evalix design system — see docs/architecture for usage rules.
         navy: '#0C2C47',
         green: '#2D5652',
         yellow: '#E2A54D',
