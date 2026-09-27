@@ -55,6 +55,20 @@ export async function createRubric(req, res, next) {
   }
 }
 
+/** GET /api/rubrics — list rubrics, optionally filtered by questionId or approved status */
+export async function listRubrics(req, res, next) {
+  try {
+    const filter = {};
+    if (req.query.questionId) filter.questionId = req.query.questionId;
+    if (req.query.approved !== undefined) filter.approved = req.query.approved === 'true';
+
+    const rubrics = await Rubric.find(filter).sort({ createdAt: -1 });
+    return success(res, rubrics);
+  } catch (err) {
+    return next(err);
+  }
+}
+
 /** GET /api/rubrics/:id */
 export async function getRubric(req, res, next) {
   try {

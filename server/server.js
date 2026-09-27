@@ -11,6 +11,7 @@ import syllabiRoutes from './routes/syllabi.routes.js';
 import blueprintsRoutes from './routes/blueprints.routes.js';
 import questionsRoutes from './routes/questions.routes.js';
 import rubricsRoutes from './routes/rubrics.routes.js';
+import evaluationsRoutes from './routes/evaluations.routes.js';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler.js';
 
 const app = express();
@@ -22,12 +23,14 @@ app.use(morgan(env.nodeEnv === 'development' ? 'dev' : 'combined'));
 // Phase 0: only the health route was wired up.
 // Phase 7: syllabi, blueprints, questions, and rubrics all forward to
 // the NLP service (see services/nlpClient.js) and persist results to
-// MongoDB. No auth middleware yet — that's Phase 8.
+// MongoDB.
+// Phase 8: answer evaluation forwarded to NLP service.
 app.use('/api/health', healthRoutes);
 app.use('/api/syllabi', syllabiRoutes);
 app.use('/api/blueprints', blueprintsRoutes);
 app.use('/api/questions', questionsRoutes);
 app.use('/api/rubrics', rubricsRoutes);
+app.use('/api/evaluations', evaluationsRoutes);
 
 app.use(notFoundHandler);
 app.use(errorHandler);

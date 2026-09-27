@@ -4,6 +4,7 @@ import validateObjectId from '../middleware/validateObjectId.js';
 import {
   generateAndSaveRubric,
   createRubric,
+  listRubrics,
   getRubric,
   updateRubric,
   deleteRubric,
@@ -14,6 +15,7 @@ const router = Router();
 
 router.use(requireDb);
 
+router.get('/', listRubrics);
 router.post('/generate', generateAndSaveRubric);
 router.post('/', createRubric);
 router.get('/:id', validateObjectId(), getRubric);

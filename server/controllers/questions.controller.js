@@ -18,7 +18,18 @@ export async function generateAndSaveQuestions(req, res, next) {
       return failure(res, 'MISSING_REQUESTS', 'requests must be a non-empty array.', 400);
     }
 
-    const nlpResult = await generateQuestions({ requests });
+    const normalizedRequests = requests.map((r) => ({
+      topicId: r.topicId || (r.topic || r.topicName || '').toLowerCase().replace(/\s+/g, '_'),
+      topic: r.topic || r.topicName || '',
+      topicName: r.topicName || r.topic || '',
+      topicB: r.topicB || undefined,
+      bloomLevel: r.bloomLevel,
+      difficulty: r.difficulty,
+      marks: Number(r.marks),
+      questionType: r.questionType || 'descriptive',
+    }));
+
+    const nlpResult = await generateQuestions({ requests: normalizedRequests });
 
     const questions = await Question.insertMany(
       nlpResult.questions.map((q) => ({

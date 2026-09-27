@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import PageHeader from '../components/PageHeader.jsx';
 import { listSyllabi } from '../services/syllabusService.js';
 import { generateBlueprint } from '../services/blueprintService.js';
@@ -18,6 +19,7 @@ function equalWeightage(units) {
 }
 
 function Blueprint() {
+  const navigate = useNavigate();
   const [syllabi, setSyllabi] = useState([]);
   const [syllabiLoading, setSyllabiLoading] = useState(true);
   const [syllabiError, setSyllabiError] = useState('');
@@ -95,8 +97,9 @@ function Blueprint() {
   return (
     <div>
       <PageHeader
-        title="Blueprint"
-        description="Select a syllabus and configure how marks and questions should be allocated across units, difficulty, and Bloom's taxonomy levels."
+        title="Question Paper Blueprint"
+        description="Select a syllabus and configure how marks and questions should be allocated across units, difficulty tiers, and Bloom's taxonomy levels using deterministic largest-remainder distribution."
+        badge="Phase 8 Step 2"
       />
 
       <form onSubmit={handleGenerate} className="rounded-xl border border-gray-200 bg-white p-6 mb-8 space-y-6">
@@ -279,6 +282,19 @@ function Blueprint() {
               </table>
             </div>
           ))}
+
+          <div className="mt-6 pt-4 border-t border-gray-100 flex items-center justify-between">
+            <span className="text-xs text-gray-500">
+              Blueprint verified and persisted. Ready for curriculum question generation.
+            </span>
+            <button
+              onClick={() => navigate('/questions')}
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-green hover:bg-green-dark text-white text-xs font-semibold shadow-sm transition-all"
+            >
+              <span>Proceed to Question Bank</span>
+              <span>→</span>
+            </button>
+          </div>
         </div>
       )}
     </div>

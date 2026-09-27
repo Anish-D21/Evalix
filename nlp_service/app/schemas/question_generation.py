@@ -4,17 +4,28 @@ from __future__ import annotations
 
 from typing import List, Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
 
 class QuestionRequestIn(BaseModel):
     topicId: Optional[str] = None
-    topic: str
+    topic: Optional[str] = None
+    topicName: Optional[str] = None
     topicB: Optional[str] = None
     bloomLevel: str
     difficulty: str
     marks: float
     questionType: Optional[str] = "descriptive"
+
+    @model_validator(mode="before")
+    @classmethod
+    def resolve_topic(cls, data):
+        if isinstance(data, dict):
+            t = data.get("topic") or data.get("topicName")
+            if t:
+                data["topic"] = t
+                data["topicName"] = t
+        return data
 
 
 class GenerateQuestionsRequest(BaseModel):
