@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import api from '../services/api.js';
+import BrandLogo from '../components/BrandLogo.jsx';
+import ThemeToggle from '../components/ThemeToggle.jsx';
 
 const NAV_ITEMS = [
   {
@@ -22,6 +24,7 @@ const NAV_ITEMS = [
       </svg>
     ),
     badge: 'Step 1',
+    badgeType: 'step1',
   },
   {
     to: '/blueprint',
@@ -32,6 +35,7 @@ const NAV_ITEMS = [
       </svg>
     ),
     badge: 'Step 2',
+    badgeType: 'step2',
   },
   {
     to: '/questions',
@@ -42,6 +46,7 @@ const NAV_ITEMS = [
       </svg>
     ),
     badge: 'Step 3',
+    badgeType: 'step3',
   },
   {
     to: '/rubric',
@@ -52,6 +57,7 @@ const NAV_ITEMS = [
       </svg>
     ),
     badge: 'Step 4',
+    badgeType: 'step4',
   },
   {
     to: '/evaluate',
@@ -62,8 +68,43 @@ const NAV_ITEMS = [
       </svg>
     ),
     badge: 'NLP Core',
+    badgeType: 'nlp',
   },
 ];
+
+function NavBadge({ label, type }) {
+  if (!label) return null;
+
+  if (type === 'nlp') {
+    return (
+      <span className="relative inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wide uppercase bg-gradient-to-r from-brand-charcoal via-brand-carbon to-brand-charcoal border border-brand-ice/60 text-brand-ice shadow-glow-ice badge-shimmer-effect group-hover:scale-105 transition-all duration-300">
+        <span className="relative flex h-2 w-2">
+          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-ice opacity-75" />
+          <span className="relative inline-flex rounded-full h-2 w-2 bg-brand-ice" />
+        </span>
+        {label}
+      </span>
+    );
+  }
+
+  // Step Badges with beautiful themed gradients & animated shine
+  const badgeStyles = {
+    step1: 'bg-gradient-to-r from-brand-lilac/30 to-brand-silk/30 border-brand-lilac/40 text-brand-silk group-hover:border-brand-silk/70 group-hover:shadow-glow-silk',
+    step2: 'bg-gradient-to-r from-brand-charcoal/80 to-brand-granite/40 border-brand-granite/50 text-brand-silk group-hover:border-brand-lilac/60',
+    step3: 'bg-gradient-to-r from-brand-silk/25 to-brand-lilac/25 border-brand-silk/40 text-brand-silk group-hover:border-brand-silk/80',
+    step4: 'bg-gradient-to-r from-brand-lilac/35 to-brand-charcoal/60 border-brand-lilac/50 text-brand-silk group-hover:border-brand-lilac/80 group-hover:shadow-glow-lilac',
+  };
+
+  const styleClass = badgeStyles[type] || 'bg-brand-charcoal/50 border-brand-charcoal text-brand-silk';
+
+  return (
+    <span
+      className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold tracking-wider uppercase border shadow-sm transition-all duration-300 group-hover:scale-105 ${styleClass} badge-shimmer-effect`}
+    >
+      {label}
+    </span>
+  );
+}
 
 function MainLayout() {
   const location = useLocation();
@@ -83,81 +124,83 @@ function MainLayout() {
       });
   }, [location.pathname]);
 
+  const currentRouteName = location.pathname.replace('/', '') || 'Dashboard';
+
   return (
-    <div className="min-h-screen flex bg-slate-50 font-sans">
+    <div className="min-h-screen flex bg-[#F9F7F6] dark:bg-[#0f1616] font-sans transition-colors duration-300 selection:bg-brand-lilac selection:text-brand-carbon">
       {/* Sidebar */}
-      <aside className="w-64 shrink-0 bg-navy text-white flex flex-col shadow-xl z-20">
-        {/* Brand header */}
-        <div className="px-6 py-6 border-b border-white/10 flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-yellow to-aqua flex items-center justify-center shadow-lg shadow-black/20 text-navy font-display font-bold text-xl">
-            E
-          </div>
-          <div>
-            <h1 className="text-xl font-display font-bold tracking-tight text-white flex items-center gap-2">
-              Evalix
-              <span className="text-[10px] uppercase font-semibold px-1.5 py-0.5 rounded bg-aqua/20 text-aqua border border-aqua/30">
-                AI
-              </span>
-            </h1>
-            <p className="text-xs text-white/60">Assessment &amp; Semantic NLP</p>
-          </div>
+      <aside className="w-68 shrink-0 bg-gradient-to-b from-[#141D1D] via-[#172121] to-[#0D1414] text-white flex flex-col shadow-2xl border-r border-brand-charcoal/30 z-20 transition-all duration-300">
+        {/* Brand header using official user logo */}
+        <div className="px-5 py-6 border-b border-brand-charcoal/30 bg-[#121919]/60 backdrop-blur-sm">
+          <BrandLogo variant="header" size="md" withLink={true} />
         </div>
 
-        {/* Navigation */}
+        {/* Navigation list */}
         <nav className="flex-1 px-3 py-5 space-y-1.5 overflow-y-auto">
-          <div className="px-3 pb-2 text-[11px] font-semibold uppercase tracking-wider text-white/40">
-            Assessment Workflow
+          <div className="px-3 pb-2 text-[10px] font-bold uppercase tracking-widest text-brand-granite/80 flex items-center justify-between">
+            <span>Assessment Pipeline</span>
+            <span className="w-1.5 h-1.5 rounded-full bg-brand-ice/60 animate-pulse" />
           </div>
+
           {NAV_ITEMS.map((item) => (
             <NavLink
               key={item.to}
               to={item.to}
               className={({ isActive }) =>
-                `group flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
+                `group relative flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-medium transition-all duration-200 ${
                   isActive
-                    ? 'bg-white/15 text-white shadow-inner font-semibold border-l-4 border-yellow pl-3'
-                    : 'text-white/70 hover:bg-white/10 hover:text-white'
+                    ? 'bg-gradient-to-r from-brand-charcoal/90 via-brand-charcoal/60 to-brand-carbon/40 text-white font-semibold shadow-lg shadow-black/30 border-l-4 border-brand-lilac pl-3'
+                    : 'text-brand-silk/75 hover:bg-brand-charcoal/30 hover:text-white hover:translate-x-1'
                 }`
               }
             >
-              <div className="flex items-center gap-3">
-                <span className="transition-transform group-hover:scale-110 duration-200">
+              <div className="flex items-center gap-3 min-w-0">
+                <span className="transition-transform duration-200 group-hover:scale-110 text-brand-lilac group-hover:text-brand-ice shrink-0">
                   {item.icon}
                 </span>
-                <span>{item.label}</span>
+                <span className="truncate">{item.label}</span>
               </div>
-              {item.badge && (
-                <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-white/10 text-white/70 group-hover:text-white group-hover:bg-white/20">
-                  {item.badge}
-                </span>
-              )}
+              <NavBadge label={item.badge} type={item.badgeType} />
             </NavLink>
           ))}
         </nav>
 
         {/* System Status & Footer */}
-        <div className="p-4 border-t border-white/10 bg-navy-dark/40">
-          <div className="flex items-center justify-between text-xs text-white/70">
-            <span className="flex items-center gap-2">
+        <div className="p-4 border-t border-brand-charcoal/40 bg-[#0E1515]/90 backdrop-blur-sm">
+          {/* Glass Status Card */}
+          <div className="p-3 rounded-xl bg-brand-carbon/80 border border-brand-charcoal/50 shadow-inner">
+            <div className="flex items-center justify-between text-xs text-brand-silk/80 mb-2">
+              <span className="flex items-center gap-2 font-medium">
+                <span className="relative flex h-2 w-2">
+                  {systemStatus.online && (
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                  )}
+                  <span
+                    className={`relative inline-flex rounded-full h-2 w-2 ${
+                      systemStatus.online ? 'bg-emerald-400' : 'bg-red-400'
+                    }`}
+                  />
+                </span>
+                {systemStatus.online ? 'Node + DB Connected' : 'Offline'}
+              </span>
               <span
-                className={`w-2.5 h-2.5 rounded-full ${
-                  systemStatus.online ? 'bg-emerald-400 animate-pulse' : 'bg-red-400'
+                className={`text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border ${
+                  systemStatus.nlpReady
+                    ? 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30'
+                    : 'bg-amber-500/15 text-amber-300 border-amber-500/30'
                 }`}
-              />
-              {systemStatus.online ? 'Node + DB Connected' : 'Offline'}
-            </span>
-            <span
-              className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${
-                systemStatus.nlpReady
-                  ? 'bg-mint text-green font-semibold'
-                  : 'bg-yellow/20 text-yellow'
-              }`}
-            >
-              {systemStatus.nlpReady ? 'NLP Ready' : 'NLP Loading'}
-            </span>
+              >
+                {systemStatus.nlpReady ? 'NLP Ready' : 'NLP Loading'}
+              </span>
+            </div>
+            <div className="flex items-center justify-between text-[10px] text-brand-granite pt-1.5 border-t border-brand-charcoal/30">
+              <span className="font-mono">MiniLM-L6-v2</span>
+              <span className="text-brand-ice/80 font-mono">v2.4.0</span>
+            </div>
           </div>
-          <div className="mt-2 text-[11px] text-white/40 text-center">
-            Evalix Assessment Platform
+
+          <div className="mt-2.5 text-[10px] text-brand-granite/70 text-center tracking-wider uppercase font-medium">
+            Evalix AI Assessment Engine
           </div>
         </div>
       </aside>
@@ -165,27 +208,39 @@ function MainLayout() {
       {/* Main Content Area */}
       <main className="flex-1 min-w-0 flex flex-col">
         {/* Top Navbar */}
-        <header className="h-16 bg-white border-b border-gray-200/80 px-8 flex items-center justify-between sticky top-0 z-10 shadow-sm">
-          <div className="flex items-center gap-2 text-xs text-gray-500">
-            <span className="font-medium text-navy">Evalix</span>
-            <span>/</span>
-            <span className="capitalize text-green font-medium">
-              {location.pathname.replace('/', '') || 'Dashboard'}
+        <header className="h-16 bg-white/90 dark:bg-[#141D1D]/90 backdrop-blur-md border-b border-brand-silk/60 dark:border-brand-charcoal/40 px-6 sm:px-8 flex items-center justify-between sticky top-0 z-10 shadow-sm transition-colors duration-300">
+          {/* Breadcrumb with Logo Emblem */}
+          <div className="flex items-center gap-2.5 text-xs text-brand-granite dark:text-brand-lilac/80">
+            <BrandLogo variant="mark" size="sm" withLink={true} />
+            <span className="font-bold text-brand-carbon dark:text-brand-silk uppercase tracking-wide">Evalix</span>
+            <span className="text-brand-granite/50">/</span>
+            <span className="capitalize font-semibold text-brand-charcoal dark:text-brand-ice">
+              {currentRouteName}
             </span>
           </div>
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2 bg-pink/60 px-3 py-1.5 rounded-lg border border-pink-dark/30 text-xs text-navy font-medium">
-              <span className="w-2 h-2 rounded-full bg-green" />
-              Academic Assessment Mode
+
+          {/* Right Header Utilities: Academic Mode Badge + Dark/Light Theme Toggle + Avatar */}
+          <div className="flex items-center gap-3">
+            <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl border border-brand-charcoal/30 dark:border-brand-charcoal/60 bg-brand-silk/20 dark:bg-brand-carbon/60 text-xs text-brand-carbon dark:text-brand-silk font-medium shadow-sm">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span>Academic Assessment Mode</span>
             </div>
-            <div className="w-8 h-8 rounded-full bg-navy text-white text-xs font-semibold flex items-center justify-center shadow">
-              T
+
+            {/* Dark Mode / Light Mode Interactive Toggle */}
+            <ThemeToggle />
+
+            {/* Profile Avatar */}
+            <div
+              title="Academic Evaluator"
+              className="w-9 h-9 rounded-xl bg-gradient-to-br from-brand-charcoal to-brand-carbon text-brand-silk text-xs font-bold flex items-center justify-center shadow-md border border-brand-charcoal/60 hover:border-brand-ice/60 transition-colors cursor-pointer"
+            >
+              EX
             </div>
           </div>
         </header>
 
         {/* Page Content Container */}
-        <div className="flex-1 p-8 lg:p-10 max-w-7xl w-full mx-auto">
+        <div className="flex-1 p-6 sm:p-8 lg:p-10 max-w-7xl w-full mx-auto">
           <Outlet />
         </div>
       </main>

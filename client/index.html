@@ -1,16 +1,27 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="dark">
 
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Evalix — AI-Powered Assessment Platform</title>
+  <link rel="icon" type="image/png" href="/logo.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script>
+    try {
+      var saved = localStorage.getItem('evalix-theme');
+      if (saved === 'dark' || !saved) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    } catch (e) {}
+  </script>
 </head>
 
-<body class="bg-white text-navy">
+<body class="bg-[#F9F7F6] dark:bg-[#0f1616] text-brand-carbon dark:text-brand-silk antialiased selection:bg-brand-lilac selection:text-brand-carbon">
   <div id="root"></div>
   <script type="module" src="/src/main.jsx"></script>
 </body>

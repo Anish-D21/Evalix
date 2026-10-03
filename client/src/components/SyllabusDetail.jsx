@@ -5,8 +5,7 @@ import { getErrorMessage } from '../services/api.js';
 /**
  * Shows the full detail of one syllabus (units + topics), with simple
  * inline editing of the title and topic lists, and delete with
- * confirmation. Deliberately keeps editing lightweight — per-topic
- * text fields and add/remove buttons, no drag-and-drop reordering.
+ * confirmation.
  */
 function SyllabusDetail({ syllabusId, onClose, onChanged }) {
   const [syllabus, setSyllabus] = useState(null);
@@ -53,8 +52,8 @@ function SyllabusDetail({ syllabusId, onClose, onChanged }) {
   }
 
   function cancelEditing() {
-    setEditTitle(syllabus.title || '');
-    setEditUnits((syllabus.units || []).map((u) => ({ ...u, topics: [...u.topics] })));
+    setEditTitle(syllabus?.title || '');
+    setEditUnits((syllabus?.units || []).map((u) => ({ ...u, topics: [...u.topics] })));
     setSaveError('');
     setIsEditing(false);
   }
@@ -115,16 +114,30 @@ function SyllabusDetail({ syllabusId, onClose, onChanged }) {
   }
 
   return (
-    <div className="rounded-xl border border-gray-200 bg-white p-6 mt-6">
-      <div className="flex items-start justify-between mb-4">
-        <h3 className="text-lg font-semibold text-navy">Syllabus Details</h3>
-        <button onClick={onClose} className="text-sm text-gray-400 hover:text-gray-600">
-          Close
+    <div className="rounded-2xl border border-gray-200 dark:border-brand-charcoal/50 bg-white dark:bg-[#161F1F] p-6 mt-6 shadow-sm dark:shadow-card-dark transition-colors">
+      <div className="flex items-start justify-between mb-4 pb-3 border-b border-gray-100 dark:border-brand-charcoal/40">
+        <h3 className="text-lg font-semibold text-brand-carbon dark:text-brand-silk flex items-center gap-2">
+          <span className="w-2.5 h-2.5 rounded-full bg-brand-ice" />
+          Syllabus Details &amp; Topic Taxonomy
+        </h3>
+        <button
+          onClick={onClose}
+          className="text-xs font-semibold px-2.5 py-1 rounded-lg bg-gray-100 dark:bg-brand-charcoal/40 text-brand-granite dark:text-brand-silk hover:bg-gray-200 dark:hover:bg-brand-charcoal/70 transition-colors"
+        >
+          Close ✕
         </button>
       </div>
 
-      {loading && <p className="text-sm text-gray-500">Loading syllabus…</p>}
-      {loadError && <p className="text-sm text-red-600">{loadError}</p>}
+      {loading && (
+        <div className="p-8 text-center text-xs text-brand-granite dark:text-brand-lilac/70">
+          <svg className="animate-spin mx-auto h-5 w-5 text-brand-ice mb-2" fill="none" viewBox="0 0 24 24">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+          </svg>
+          Loading syllabus details…
+        </div>
+      )}
+      {loadError && <p className="text-sm text-red-500">{loadError}</p>}
 
       {!loading && !loadError && syllabus && (
         <div>
@@ -135,13 +148,13 @@ function SyllabusDetail({ syllabusId, onClose, onChanged }) {
                 type="text"
                 value={editTitle}
                 onChange={(e) => setEditTitle(e.target.value)}
-                className="w-full max-w-md border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green/40"
+                className="w-full max-w-md border border-gray-300 dark:border-brand-charcoal bg-white dark:bg-[#131A1A] text-brand-carbon dark:text-brand-silk rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-lilac/40"
               />
             ) : (
-              <h4 className="text-xl font-semibold text-navy">{syllabus.title}</h4>
+              <h4 className="text-xl font-bold font-display text-brand-carbon dark:text-brand-silk">{syllabus.title}</h4>
             )}
-            <p className="text-xs text-gray-400 mt-1">
-              File: {syllabus.originalFileName} · Status: {syllabus.status}
+            <p className="text-xs text-brand-granite dark:text-brand-lilac/70 mt-1">
+              File: <span className="font-mono">{syllabus.originalFileName}</span> · Status: {syllabus.status}
               {syllabus.createdAt && ` · Uploaded ${new Date(syllabus.createdAt).toLocaleDateString()}`}
             </p>
           </div>
@@ -149,9 +162,12 @@ function SyllabusDetail({ syllabusId, onClose, onChanged }) {
           {/* Units + topics */}
           <div className="space-y-4">
             {editUnits.map((unit, unitIndex) => (
-              <div key={unit.unitNumber ?? unitIndex} className="rounded-lg border border-gray-100 p-4 bg-mint/30">
+              <div
+                key={unit.unitNumber ?? unitIndex}
+                className="rounded-xl border border-gray-100 dark:border-brand-charcoal/40 p-4 bg-brand-silk/15 dark:bg-[#131A1A]"
+              >
                 <div className="flex items-center gap-2 mb-3">
-                  <span className="text-xs font-semibold text-green bg-white px-2 py-0.5 rounded-full border border-green/20">
+                  <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-brand-charcoal text-white dark:bg-brand-charcoal/80 dark:text-brand-silk border border-brand-charcoal">
                     Unit {unit.unitNumber}
                   </span>
                   {isEditing ? (
@@ -159,10 +175,10 @@ function SyllabusDetail({ syllabusId, onClose, onChanged }) {
                       type="text"
                       value={unit.title}
                       onChange={(e) => updateUnitTitle(unitIndex, e.target.value)}
-                      className="flex-1 border border-gray-300 rounded-lg px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-green/40"
+                      className="flex-1 border border-gray-300 dark:border-brand-charcoal bg-white dark:bg-[#172121] text-brand-carbon dark:text-brand-silk rounded-lg px-2.5 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-brand-lilac/40"
                     />
                   ) : (
-                    <span className="font-medium text-navy text-sm">{unit.title}</span>
+                    <span className="font-semibold text-brand-carbon dark:text-brand-silk text-sm">{unit.title}</span>
                   )}
                 </div>
 
@@ -174,11 +190,11 @@ function SyllabusDetail({ syllabusId, onClose, onChanged }) {
                           type="text"
                           value={topic}
                           onChange={(e) => updateTopic(unitIndex, topicIndex, e.target.value)}
-                          className="flex-1 border border-gray-300 rounded-lg px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-green/40"
+                          className="flex-1 border border-gray-300 dark:border-brand-charcoal bg-white dark:bg-[#172121] text-brand-carbon dark:text-brand-silk rounded-lg px-2.5 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-brand-lilac/40"
                         />
                         <button
                           onClick={() => removeTopic(unitIndex, topicIndex)}
-                          className="text-xs text-red-500 hover:text-red-700"
+                          className="text-xs text-red-500 hover:text-red-600 px-2 py-1"
                           aria-label={`Remove topic ${topic}`}
                         >
                           Remove
@@ -187,7 +203,7 @@ function SyllabusDetail({ syllabusId, onClose, onChanged }) {
                     ))}
                     <button
                       onClick={() => addTopic(unitIndex)}
-                      className="text-xs font-medium text-green hover:underline"
+                      className="text-xs font-semibold text-brand-charcoal dark:text-brand-ice hover:underline"
                     >
                       + Add topic
                     </button>
@@ -197,37 +213,37 @@ function SyllabusDetail({ syllabusId, onClose, onChanged }) {
                     {unit.topics.map((topic, topicIndex) => (
                       <li
                         key={topicIndex}
-                        className="text-xs bg-white border border-gray-200 rounded-full px-3 py-1 text-navy"
+                        className="text-xs bg-white dark:bg-brand-carbon border border-gray-200 dark:border-brand-charcoal/60 rounded-full px-3 py-1 text-brand-carbon dark:text-brand-silk shadow-sm"
                       >
                         {topic}
                       </li>
                     ))}
                   </ul>
                 ) : (
-                  <p className="text-xs text-gray-400 italic">No topics extracted for this unit.</p>
+                  <p className="text-xs text-brand-granite dark:text-brand-lilac/60 italic">No topics extracted for this unit.</p>
                 )}
               </div>
             ))}
-            {editUnits.length === 0 && <p className="text-sm text-gray-400">No units were extracted.</p>}
+            {editUnits.length === 0 && <p className="text-sm text-brand-granite">No units were extracted.</p>}
           </div>
 
-          {saveError && <p className="text-sm text-red-600 mt-4">{saveError}</p>}
+          {saveError && <p className="text-sm text-red-500 mt-4">{saveError}</p>}
 
           {/* Actions */}
-          <div className="flex items-center gap-3 mt-6 pt-4 border-t border-gray-100">
+          <div className="flex items-center gap-3 mt-6 pt-4 border-t border-gray-100 dark:border-brand-charcoal/40 flex-wrap">
             {isEditing ? (
               <>
                 <button
                   onClick={handleSave}
                   disabled={saving}
-                  className="px-4 py-2 rounded-lg bg-green text-white text-sm font-medium hover:opacity-90 disabled:opacity-50"
+                  className="px-4 py-2 rounded-xl bg-brand-charcoal hover:bg-brand-carbon text-white text-xs font-semibold shadow-md transition-all disabled:opacity-50"
                 >
                   {saving ? 'Saving…' : 'Save Changes'}
                 </button>
                 <button
                   onClick={cancelEditing}
                   disabled={saving}
-                  className="px-4 py-2 rounded-lg border border-gray-300 text-sm font-medium text-gray-600 hover:bg-gray-50"
+                  className="px-4 py-2 rounded-xl border border-gray-300 dark:border-brand-charcoal text-xs font-semibold text-brand-granite dark:text-brand-silk hover:bg-gray-100 dark:hover:bg-brand-charcoal/40 transition-colors"
                 >
                   Cancel
                 </button>
@@ -235,9 +251,9 @@ function SyllabusDetail({ syllabusId, onClose, onChanged }) {
             ) : (
               <button
                 onClick={startEditing}
-                className="px-4 py-2 rounded-lg border border-gray-300 text-sm font-medium text-navy hover:bg-gray-50"
+                className="px-4 py-2 rounded-xl border border-gray-300 dark:border-brand-charcoal text-xs font-semibold text-brand-carbon dark:text-brand-silk hover:bg-gray-50 dark:hover:bg-brand-charcoal/40 transition-colors"
               >
-                Edit
+                Edit Topics
               </button>
             )}
 
@@ -245,18 +261,18 @@ function SyllabusDetail({ syllabusId, onClose, onChanged }) {
 
             {confirmingDelete ? (
               <div className="flex items-center gap-2">
-                <span className="text-sm text-gray-600">Delete this syllabus?</span>
+                <span className="text-xs text-brand-granite dark:text-brand-lilac">Delete this syllabus?</span>
                 <button
                   onClick={handleDelete}
                   disabled={deleting}
-                  className="px-3 py-1.5 rounded-lg bg-red-600 text-white text-xs font-medium hover:bg-red-700 disabled:opacity-50"
+                  className="px-3 py-1.5 rounded-lg bg-red-600 text-white text-xs font-semibold hover:bg-red-700 disabled:opacity-50"
                 >
                   {deleting ? 'Deleting…' : 'Confirm Delete'}
                 </button>
                 <button
                   onClick={() => setConfirmingDelete(false)}
                   disabled={deleting}
-                  className="px-3 py-1.5 rounded-lg border border-gray-300 text-xs font-medium text-gray-600 hover:bg-gray-50"
+                  className="px-3 py-1.5 rounded-lg border border-gray-300 dark:border-brand-charcoal text-xs font-medium text-brand-granite hover:bg-gray-50 dark:hover:bg-brand-charcoal/30"
                 >
                   Cancel
                 </button>
@@ -264,13 +280,13 @@ function SyllabusDetail({ syllabusId, onClose, onChanged }) {
             ) : (
               <button
                 onClick={() => setConfirmingDelete(true)}
-                className="px-4 py-2 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50"
+                className="px-4 py-2 rounded-xl text-xs font-semibold text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
               >
                 Delete Syllabus
               </button>
             )}
           </div>
-          {deleteError && <p className="text-sm text-red-600 mt-2">{deleteError}</p>}
+          {deleteError && <p className="text-xs text-red-500 mt-2">{deleteError}</p>}
         </div>
       )}
     </div>

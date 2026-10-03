@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import PageHeader from '../components/PageHeader.jsx';
+import BrandLogo from '../components/BrandLogo.jsx';
 import { evaluateStudentAnswer } from '../services/evaluationService.js';
 import { listRubrics, getRubric } from '../services/rubricService.js';
 import { listQuestions } from '../services/questionService.js';
@@ -266,22 +267,25 @@ function Evaluation() {
               <button
                 type="submit"
                 disabled={evaluating}
-                className="w-full py-3 rounded-xl bg-yellow hover:bg-yellow-dark text-navy font-bold text-sm shadow-md shadow-yellow/20 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                className="w-full py-3 rounded-xl bg-gradient-to-r from-brand-charcoal via-brand-carbon to-brand-charcoal hover:from-brand-carbon hover:to-brand-charcoal text-white font-bold text-sm shadow-lg shadow-black/20 border border-brand-charcoal/80 hover:border-brand-ice/60 hover:shadow-glow-ice transition-all duration-300 disabled:opacity-50 flex items-center justify-center gap-2 group"
               >
                 {evaluating ? (
                   <>
-                    <svg className="animate-spin h-5 w-5 text-navy" fill="none" viewBox="0 0 24 24">
+                    <svg className="animate-spin h-5 w-5 text-brand-ice" fill="none" viewBox="0 0 24 24">
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
                     </svg>
-                    Evaluating with Semantic NLP Engine…
+                    <span>Evaluating with Semantic NLP Engine…</span>
                   </>
                 ) : (
-                  'Evaluate Student Answer'
+                  <>
+                    <span>Evaluate Student Answer</span>
+                    <span className="text-brand-ice group-hover:translate-x-1 transition-transform">→</span>
+                  </>
                 )}
               </button>
 
-              {evalError && <p className="text-xs text-red-600 font-medium">{evalError}</p>}
+              {evalError && <p className="text-xs text-red-500 font-medium">{evalError}</p>}
             </form>
           </div>
         </div>
@@ -289,15 +293,13 @@ function Evaluation() {
         {/* Right Column: Explainable Semantic Results View */}
         <div className="lg:col-span-7">
           {!evalResult ? (
-            <div className="bg-white rounded-2xl border-2 border-dashed border-gray-200 p-12 text-center">
-              <div className="w-14 h-14 rounded-full bg-mint flex items-center justify-center mx-auto mb-4 text-green">
-                <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-                </svg>
+            <div className="bg-white dark:bg-[#161F1F] rounded-2xl border-2 border-dashed border-gray-200 dark:border-brand-charcoal/50 p-12 text-center transition-colors">
+              <div className="flex justify-center mb-4">
+                <BrandLogo variant="mark" size="lg" />
               </div>
-              <h4 className="text-base font-bold font-display text-navy">No Evaluation Results Yet</h4>
-              <p className="text-xs text-gray-500 mt-1.5 max-w-md mx-auto leading-relaxed">
-                Provide a student answer on the left and click <span className="font-semibold text-navy">Evaluate</span> to inspect the explainable semantic scoring breakdown, evidence quotes, and misconception analysis.
+              <h4 className="text-base font-bold font-display text-brand-carbon dark:text-brand-silk">No Evaluation Results Yet</h4>
+              <p className="text-xs text-brand-granite dark:text-brand-lilac/75 mt-1.5 max-w-md mx-auto leading-relaxed">
+                Provide a student answer on the left and click <span className="font-semibold text-brand-carbon dark:text-brand-ice">Evaluate Student Answer</span> to inspect the explainable semantic scoring breakdown, evidence quotes, and misconception analysis.
               </p>
             </div>
           ) : (
