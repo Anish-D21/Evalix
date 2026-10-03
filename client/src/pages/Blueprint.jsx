@@ -187,7 +187,7 @@ function Blueprint() {
           <label className="block text-xs font-semibold text-brand-granite dark:text-brand-lilac/80 mb-2">
             Difficulty Distribution (%) — sum: <span className="font-mono text-brand-carbon dark:text-brand-silk">{difficultySum.toFixed(1)}%</span>
           </label>
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             {Object.keys(difficulty).map((key) => (
               <div key={key} className="p-2.5 rounded-xl bg-brand-silk/15 dark:bg-[#131A1A] border border-gray-100 dark:border-brand-charcoal/40">
                 <span className="block text-[11px] font-semibold text-brand-granite dark:text-brand-lilac/70 capitalize mb-1">{key}</span>
@@ -209,7 +209,7 @@ function Blueprint() {
           <label className="block text-xs font-semibold text-brand-granite dark:text-brand-lilac/80 mb-2">
             Bloom's Taxonomy Distribution (%) — sum: <span className="font-mono text-brand-carbon dark:text-brand-silk">{bloomSum.toFixed(1)}%</span>
           </label>
-          <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 sm:gap-3">
             {Object.keys(bloom).map((key) => (
               <div key={key} className="p-2.5 rounded-xl bg-brand-silk/15 dark:bg-[#131A1A] border border-gray-100 dark:border-brand-charcoal/40">
                 <span className="block text-[11px] font-semibold text-brand-granite dark:text-brand-lilac/70 capitalize mb-1">{key}</span>
@@ -229,7 +229,7 @@ function Blueprint() {
         <button
           type="submit"
           disabled={generating}
-          className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-brand-charcoal hover:bg-brand-carbon text-white text-xs font-semibold shadow-md shadow-brand-charcoal/30 border border-brand-charcoal/60 hover:border-brand-ice/60 transition-all disabled:opacity-50"
+          className="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-brand-charcoal hover:bg-brand-carbon text-white text-xs font-semibold shadow-md shadow-brand-charcoal/30 border border-brand-charcoal/60 hover:border-brand-ice/60 transition-all disabled:opacity-50 w-full sm:w-auto"
         >
           {generating ? (
             <>

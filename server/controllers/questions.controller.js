@@ -18,16 +18,32 @@ export async function generateAndSaveQuestions(req, res, next) {
       return failure(res, 'MISSING_REQUESTS', 'requests must be a non-empty array.', 400);
     }
 
-    const normalizedRequests = requests.map((r) => ({
-      topicId: r.topicId || (r.topic || r.topicName || '').toLowerCase().replace(/\s+/g, '_'),
-      topic: r.topic || r.topicName || '',
-      topicName: r.topicName || r.topic || '',
-      topicB: r.topicB || undefined,
-      bloomLevel: r.bloomLevel,
-      difficulty: r.difficulty,
-      marks: Number(r.marks),
-      questionType: r.questionType || 'descriptive',
-    }));
+    const topicCounts = {};
+    const normalizedRequests = requests.map((r) => {
+      const topic = (r.topic || r.topicName || '').trim();
+      const bloomLevel = (r.bloomLevel || '').toLowerCase();
+      const comboKey = `${topic.toLowerCase()}|${bloomLevel}`;
+
+      let variantIndex = r.variantIndex;
+      if (variantIndex === undefined || variantIndex === null) {
+        if (topicCounts[comboKey] === undefined) {
+          topicCounts[comboKey] = 0;
+        }
+        variantIndex = topicCounts[comboKey]++;
+      }
+
+      return {
+        topicId: r.topicId || topic.toLowerCase().replace(/\s+/g, '_'),
+        topic: topic,
+        topicName: r.topicName || topic,
+        topicB: r.topicB || undefined,
+        bloomLevel: r.bloomLevel,
+        difficulty: r.difficulty,
+        marks: Number(r.marks),
+        questionType: r.questionType || 'descriptive',
+        variantIndex: Number(variantIndex),
+      };
+    });
 
     const nlpResult = await generateQuestions({ requests: normalizedRequests });
 

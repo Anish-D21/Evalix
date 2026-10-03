@@ -119,3 +119,24 @@ def test_large_batch_all_six_bloom_levels():
     result = generate_questions({"requests": requests})
     assert len(result["questions"]) == 6
     assert all(q["validation"]["valid"] for q in result["questions"])
+
+
+def test_multiple_unique_questions_generated_with_variant_index():
+    # When quantity > 1 is requested, variantIndex generates distinct questions
+    requests = [
+        {
+            "topic": "Machine Learning",
+            "bloomLevel": "apply",
+            "difficulty": "medium",
+            "marks": 5,
+            "variantIndex": i,
+        }
+        for i in range(5)
+    ]
+    result = generate_questions({"requests": requests})
+    assert len(result["questions"]) == 5
+    texts = [q["text"] for q in result["questions"]]
+    assert len(set(texts)) == 5
+    assert all(q["validation"]["valid"] for q in result["questions"])
+    assert result["warnings"] == []
+

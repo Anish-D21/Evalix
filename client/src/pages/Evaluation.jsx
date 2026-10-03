@@ -336,7 +336,7 @@ function Evaluation() {
                 </div>
 
                 {/* Metric Bars */}
-                <div className="grid grid-cols-3 gap-3 mt-6 pt-5 border-t border-gray-100">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3 mt-6 pt-5 border-t border-gray-100">
                   <div className="p-3 rounded-xl bg-mint/40 border border-green/20">
                     <div className="text-[11px] font-semibold text-green uppercase">Concept Coverage</div>
                     <div className="text-xl font-bold font-display text-navy mt-1">

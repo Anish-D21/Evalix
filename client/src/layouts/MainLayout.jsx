@@ -108,7 +108,12 @@ function NavBadge({ label, type }) {
 
 function MainLayout() {
   const location = useLocation();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [systemStatus, setSystemStatus] = useState({ online: true, nlpReady: true });
+
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [location.pathname]);
 
   useEffect(() => {
     api.get('/health')
@@ -128,11 +133,34 @@ function MainLayout() {
 
   return (
     <div className="min-h-screen flex bg-[#F9F7F6] dark:bg-[#0f1616] font-sans transition-colors duration-300 selection:bg-brand-lilac selection:text-brand-carbon">
-      {/* Sidebar */}
-      <aside className="w-68 shrink-0 bg-gradient-to-b from-[#141D1D] via-[#172121] to-[#0D1414] text-white flex flex-col shadow-2xl border-r border-brand-charcoal/30 z-20 transition-all duration-300">
-        {/* Brand header using official user logo */}
-        <div className="px-5 py-6 border-b border-brand-charcoal/30 bg-[#121919]/60 backdrop-blur-sm">
+      {/* Mobile Drawer Backdrop Overlay */}
+      {mobileMenuOpen && (
+        <div
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 lg:hidden transition-opacity duration-300"
+          onClick={() => setMobileMenuOpen(false)}
+          aria-hidden="true"
+        />
+      )}
+
+      {/* Sidebar (Desktop Permanent + Mobile Drawer) */}
+      <aside
+        className={`fixed inset-y-0 left-0 z-50 w-72 bg-gradient-to-b from-[#141D1D] via-[#172121] to-[#0D1414] text-white flex flex-col shadow-2xl border-r border-brand-charcoal/30 transition-transform duration-300 ease-in-out lg:static lg:w-64 lg:shrink-0 lg:translate-x-0 ${
+          mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
+        }`}
+      >
+        {/* Brand header with Logo & Mobile close button */}
+        <div className="px-5 py-5 border-b border-brand-charcoal/30 bg-[#121919]/60 backdrop-blur-sm flex items-center justify-between">
           <BrandLogo variant="header" size="md" withLink={true} />
+          <button
+            type="button"
+            onClick={() => setMobileMenuOpen(false)}
+            className="lg:hidden p-1.5 rounded-lg text-brand-granite hover:text-white hover:bg-brand-charcoal/40 transition-colors"
+            aria-label="Close menu"
+          >
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
         </div>
 
         {/* Navigation list */}
@@ -146,6 +174,7 @@ function MainLayout() {
             <NavLink
               key={item.to}
               to={item.to}
+              onClick={() => setMobileMenuOpen(false)}
               className={({ isActive }) =>
                 `group relative flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-medium transition-all duration-200 ${
                   isActive
@@ -181,10 +210,10 @@ function MainLayout() {
                     }`}
                   />
                 </span>
-                {systemStatus.online ? 'Node + DB Connected' : 'Offline'}
+                <span className="text-[11px] truncate">{systemStatus.online ? 'Node + DB Connected' : 'Offline'}</span>
               </span>
               <span
-                className={`text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border ${
+                className={`text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border shrink-0 ${
                   systemStatus.nlpReady
                     ? 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30'
                     : 'bg-amber-500/15 text-amber-300 border-amber-500/30'
@@ -208,20 +237,33 @@ function MainLayout() {
       {/* Main Content Area */}
       <main className="flex-1 min-w-0 flex flex-col">
         {/* Top Navbar */}
-        <header className="h-16 bg-white/90 dark:bg-[#141D1D]/90 backdrop-blur-md border-b border-brand-silk/60 dark:border-brand-charcoal/40 px-6 sm:px-8 flex items-center justify-between sticky top-0 z-10 shadow-sm transition-colors duration-300">
-          {/* Breadcrumb with Logo Emblem */}
-          <div className="flex items-center gap-2.5 text-xs text-brand-granite dark:text-brand-lilac/80">
-            <BrandLogo variant="mark" size="sm" withLink={true} />
-            <span className="font-bold text-brand-carbon dark:text-brand-silk uppercase tracking-wide">Evalix</span>
-            <span className="text-brand-granite/50">/</span>
-            <span className="capitalize font-semibold text-brand-charcoal dark:text-brand-ice">
-              {currentRouteName}
-            </span>
+        <header className="h-16 bg-white/90 dark:bg-[#141D1D]/90 backdrop-blur-md border-b border-brand-silk/60 dark:border-brand-charcoal/40 px-4 sm:px-6 lg:px-8 flex items-center justify-between sticky top-0 z-30 shadow-sm transition-colors duration-300">
+          {/* Left: Mobile Hamburger Toggle + Breadcrumb with Logo Emblem */}
+          <div className="flex items-center gap-2.5 min-w-0">
+            <button
+              type="button"
+              onClick={() => setMobileMenuOpen(true)}
+              className="lg:hidden p-2 -ml-1 rounded-xl text-brand-carbon dark:text-brand-silk hover:bg-black/5 dark:hover:bg-white/5 transition-colors focus:outline-none"
+              aria-label="Open navigation menu"
+            >
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
+
+            <div className="flex items-center gap-2 min-w-0">
+              <BrandLogo variant="mark" size="sm" withLink={true} />
+              <span className="hidden sm:inline font-bold text-brand-carbon dark:text-brand-silk uppercase tracking-wide text-xs">Evalix</span>
+              <span className="hidden sm:inline text-brand-granite/50 text-xs">/</span>
+              <span className="capitalize font-semibold text-brand-charcoal dark:text-brand-ice text-xs truncate">
+                {currentRouteName}
+              </span>
+            </div>
           </div>
 
           {/* Right Header Utilities: Academic Mode Badge + Dark/Light Theme Toggle + Avatar */}
-          <div className="flex items-center gap-3">
-            <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl border border-brand-charcoal/30 dark:border-brand-charcoal/60 bg-brand-silk/20 dark:bg-brand-carbon/60 text-xs text-brand-carbon dark:text-brand-silk font-medium shadow-sm">
+          <div className="flex items-center gap-2.5 sm:gap-3 shrink-0">
+            <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-xl border border-brand-charcoal/30 dark:border-brand-charcoal/60 bg-brand-silk/20 dark:bg-brand-carbon/60 text-xs text-brand-carbon dark:text-brand-silk font-medium shadow-sm">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
               <span>Academic Assessment Mode</span>
             </div>
@@ -232,15 +274,15 @@ function MainLayout() {
             {/* Profile Avatar */}
             <div
               title="Academic Evaluator"
-              className="w-9 h-9 rounded-xl bg-gradient-to-br from-brand-charcoal to-brand-carbon text-brand-silk text-xs font-bold flex items-center justify-center shadow-md border border-brand-charcoal/60 hover:border-brand-ice/60 transition-colors cursor-pointer"
+              className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-gradient-to-br from-brand-charcoal to-brand-carbon text-brand-silk text-xs font-bold flex items-center justify-center shadow-md border border-brand-charcoal/60 hover:border-brand-ice/60 transition-colors cursor-pointer shrink-0"
             >
               EX
             </div>
           </div>
         </header>
 
-        {/* Page Content Container */}
-        <div className="flex-1 p-6 sm:p-8 lg:p-10 max-w-7xl w-full mx-auto">
+        {/* Page Content Container with Responsive Padding */}
+        <div className="flex-1 p-3.5 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto overflow-x-hidden">
           <Outlet />
         </div>
       </main>

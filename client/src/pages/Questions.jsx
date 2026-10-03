@@ -93,7 +93,15 @@ function Questions() {
     setActionError('');
 
     try {
-      const requests = Array.from({ length: Number(questionCount) }, () => ({
+      const existingForTopic = questions.filter(
+        (q) =>
+          q.topicName?.toLowerCase() === topicName.trim().toLowerCase() &&
+          q.bloomLevel?.toLowerCase() === bloomLevel.toLowerCase() &&
+          q.difficulty?.toLowerCase() === difficulty.toLowerCase() &&
+          Number(q.marks) === Number(marks)
+      ).length;
+
+      const requests = Array.from({ length: Number(questionCount) }, (_, idx) => ({
         topicId: topicName.toLowerCase().replace(/\s+/g, '_'),
         topic: topicName.trim(),
         topicName: topicName.trim(),
@@ -101,6 +109,7 @@ function Questions() {
         difficulty,
         marks: Number(marks),
         questionType: 'descriptive',
+        variantIndex: existingForTopic + idx,
       }));
 
       const result = await generateQuestions({ requests });
@@ -268,42 +277,45 @@ function Questions() {
               <label className="block text-xs font-semibold text-gray-600 mb-1.5">
                 Topic Name <span className="text-red-500">*</span>
               </label>
-              {availableTopics.length > 0 ? (
-                <div className="flex gap-2">
-                  <select
-                    value={topicName}
-                    onChange={(e) => setTopicName(e.target.value)}
-                    className="flex-1 border border-gray-300 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green/30 bg-slate-50/50"
-                  >
-                    <option value="">Select topic from syllabus…</option>
+              <input
+                type="text"
+                list={availableTopics.length > 0 ? 'available-topics-list' : undefined}
+                placeholder="e.g. Supervised Learning, Backpropagation, Gradient Descent"
+                value={topicName}
+                onChange={(e) => setTopicName(e.target.value)}
+                className="w-full border border-gray-300 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green/30 bg-white"
+              />
+              {availableTopics.length > 0 && (
+                <>
+                  <datalist id="available-topics-list" style={{ display: 'none' }}>
                     {availableTopics.map((t, idx) => (
-                      <option key={idx} value={t}>
-                        {t}
-                      </option>
+                      <option key={idx} value={t} />
                     ))}
-                  </select>
-                  <input
-                    type="text"
-                    placeholder="Or type custom topic"
-                    value={topicName}
-                    onChange={(e) => setTopicName(e.target.value)}
-                    className="flex-1 border border-gray-300 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green/30"
-                  />
-                </div>
-              ) : (
-                <input
-                  type="text"
-                  placeholder="e.g. Supervised Learning, Backpropagation, Gradient Descent"
-                  value={topicName}
-                  onChange={(e) => setTopicName(e.target.value)}
-                  className="w-full border border-gray-300 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green/30"
-                />
+                  </datalist>
+                  <div className="flex items-center gap-1.5 flex-wrap mt-2">
+                    <span className="text-[11px] text-gray-400">Suggested:</span>
+                    {availableTopics.slice(0, 5).map((t, idx) => (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() => setTopicName(t)}
+                        className={`text-[11px] px-2.5 py-0.5 rounded-lg border transition-all ${
+                          topicName === t
+                            ? 'bg-green/15 text-green-800 border-green/40 font-semibold'
+                            : 'bg-slate-50 hover:bg-slate-100 text-gray-600 border-gray-200'
+                        }`}
+                      >
+                        {t}
+                      </button>
+                    ))}
+                  </div>
+                </>
               )}
             </div>
           </div>
 
           {/* Bloom, Difficulty, Marks, Count */}
-          <div className="grid sm:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
             <div>
               <label className="block text-xs font-semibold text-gray-600 mb-1.5">
                 Bloom's Taxonomy Level
@@ -367,7 +379,7 @@ function Questions() {
             </div>
           </div>
 
-          <div className="flex items-center justify-between pt-2">
+          <div className="flex flex-col-reverse sm:flex-row sm:items-center justify-between gap-3 pt-2">
             <div className="text-xs text-gray-500">
               Generated questions start in <span className="font-semibold text-amber-600">Draft</span> status and
               require teacher approval before exam publication.
@@ -376,7 +388,7 @@ function Questions() {
             <button
               type="submit"
               disabled={generating}
-              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-green hover:bg-green-dark text-white text-sm font-semibold shadow-md shadow-green/20 transition-all disabled:opacity-50"
+              className="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-green hover:bg-green-dark text-white text-sm font-semibold shadow-md shadow-green/20 transition-all disabled:opacity-50 w-full sm:w-auto"
             >
               {generating ? (
                 <>
@@ -384,10 +396,10 @@ function Questions() {
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
                   </svg>
-                  Generating Question…
+                  Generating {Number(questionCount) > 1 ? `${questionCount} Questions` : 'Question'}…
                 </>
               ) : (
-                'Generate Question'
+                `Generate ${Number(questionCount) > 1 ? `${questionCount} Questions` : 'Question'}`
               )}
             </button>
           </div>
@@ -538,7 +550,7 @@ function Questions() {
                       onChange={(e) => setEditText(e.target.value)}
                       className="w-full border border-gray-300 rounded-xl p-3 text-sm focus:outline-none focus:ring-2 focus:ring-green/30"
                     />
-                    <div className="grid grid-cols-3 gap-3">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                       <div>
                         <label className="block text-xs font-semibold text-gray-600 mb-1">Marks</label>
                         <input

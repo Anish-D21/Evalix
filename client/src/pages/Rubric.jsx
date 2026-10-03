@@ -523,7 +523,7 @@ function Rubric() {
                     key={concept.id || idx}
                     className="p-4 rounded-xl border border-gray-200 hover:border-gray-300 bg-slate-50/40 space-y-3 transition-all"
                   >
-                    <div className="flex items-center justify-between gap-3">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
                       <div className="flex items-center gap-2 flex-1">
                         <span className="w-5 h-5 rounded-full bg-navy text-white text-[11px] font-bold flex items-center justify-center shrink-0">
                           {idx + 1}
@@ -537,7 +537,7 @@ function Rubric() {
                         />
                       </div>
 
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 self-end sm:self-auto">
                         <div className="flex items-center gap-1">
                           <label className="text-xs text-gray-500 font-medium">Marks:</label>
                           <input
@@ -697,7 +697,7 @@ function Rubric() {
 
                 {showAddRelationship && (
                   <div className="p-3 bg-slate-50 rounded-xl border border-gray-200 space-y-2 mb-3">
-                    <div className="grid grid-cols-3 gap-2">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                       <input
                         type="text"
                         placeholder="Source concept"
@@ -760,12 +760,12 @@ function Rubric() {
               </div>
 
               {/* Rubric Action Bar */}
-              <div className="pt-4 border-t border-gray-100 flex items-center justify-between flex-wrap gap-3">
-                <div className="flex items-center gap-3">
+              <div className="pt-4 border-t border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="flex flex-wrap items-center gap-2.5 sm:gap-3">
                   <button
                     onClick={handleSaveRubric}
                     disabled={saving}
-                    className="px-4 py-2 rounded-xl bg-navy text-white text-xs font-semibold hover:bg-navy-dark transition-all disabled:opacity-50"
+                    className="flex-1 sm:flex-none px-4 py-2 rounded-xl bg-navy text-white text-xs font-semibold hover:bg-navy-dark transition-all disabled:opacity-50"
                   >
                     {saving ? 'Saving…' : 'Save Changes'}
                   </button>
@@ -773,7 +773,7 @@ function Rubric() {
                   <button
                     onClick={handleApproveRubric}
                     disabled={approving || !isMarksBalanced || activeRubric.approved}
-                    className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 ${
+                    className={`flex-1 sm:flex-none px-4 py-2 rounded-xl text-xs font-semibold transition-all flex items-center justify-center gap-1.5 ${
                       activeRubric.approved
                         ? 'bg-mint text-green border border-green/30 cursor-default'
                         : isMarksBalanced
@@ -790,7 +790,7 @@ function Rubric() {
 
                 <button
                   onClick={() => navigate(`/evaluate?rubricId=${activeRubric._id}`)}
-                  className="px-4 py-2 rounded-xl bg-yellow hover:bg-yellow-dark text-navy font-semibold text-xs transition-all shadow-sm flex items-center gap-1.5"
+                  className="w-full sm:w-auto px-4 py-2 rounded-xl bg-yellow hover:bg-yellow-dark text-navy font-semibold text-xs transition-all shadow-sm flex items-center justify-center gap-1.5"
                 >
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />

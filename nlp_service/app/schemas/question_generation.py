@@ -16,6 +16,7 @@ class QuestionRequestIn(BaseModel):
     difficulty: str
     marks: float
     questionType: Optional[str] = "descriptive"
+    variantIndex: Optional[int] = None
 
     @model_validator(mode="before")
     @classmethod

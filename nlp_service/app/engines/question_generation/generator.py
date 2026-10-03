@@ -23,7 +23,14 @@ def generate_questions(request_data: dict, embed_fn: Optional[Callable] = None) 
 
     questions = []
     for req in validated_requests:
-        text = render_question(req["topic"], req["bloomLevel"], req["difficulty"], req["marks"], req["topicB"])
+        text = render_question(
+            req["topic"],
+            req["bloomLevel"],
+            req["difficulty"],
+            req["marks"],
+            req["topicB"],
+            variant_index=req.get("variantIndex"),
+        )
         questions.append(
             {
                 "topicId": req["topicId"],

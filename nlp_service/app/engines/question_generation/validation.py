@@ -67,6 +67,13 @@ def validate_question_request(item: dict, index: int) -> dict:
     question_type = (item.get("questionType") or "descriptive").strip()
     topic_id = item.get("topicId")
 
+    variant_index = item.get("variantIndex")
+    if variant_index is not None:
+        try:
+            variant_index = int(variant_index)
+        except (ValueError, TypeError):
+            variant_index = None
+
     return {
         "topicId": topic_id,
         "topic": topic,
@@ -75,6 +82,7 @@ def validate_question_request(item: dict, index: int) -> dict:
         "difficulty": difficulty,
         "marks": float(marks),
         "questionType": question_type,
+        "variantIndex": variant_index,
     }
 
 
