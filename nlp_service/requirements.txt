@@ -5,13 +5,18 @@ pydantic-settings==2.5.2
 python-dotenv==1.0.1
 
 # Phase 1: NLP evaluation core.
-# PyMuPDF / python-docx (syllabus text extraction) are deferred to Phase 2.
 spacy==3.7.5
-sentence-transformers==3.0.1
 scikit-learn==1.5.2
 numpy==1.26.4
 
-# Phase 2: syllabus processing (PDF/DOCX/TXT text extraction).
+# Sentence Transformers
+sentence-transformers==3.0.1
+
+# Phase 2: syllabus processing
 pymupdf==1.24.10
 python-docx==1.1.2
 python-multipart==0.0.9
+
+# CPU-only PyTorch for Sentence Transformers
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch==2.6.0+cpu
